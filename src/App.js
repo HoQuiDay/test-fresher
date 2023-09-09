@@ -5,6 +5,8 @@ import TableUsers from './components/TableUsers'
 import ModalAddNew from './components/ModalAddNew'
 import { useState } from 'react'
 import { ToastContainer } from 'react-toastify'
+import { setupServer } from './FakeApis'
+setupServer()
 function App() {
   const [isShowModalAddNew, setIsShowModalAddNew] = useState(false)
   const handleClose = () => {

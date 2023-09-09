@@ -1,9 +1,12 @@
 import axios from './customAxios'
 
 const fetchAllUser = (page) => {
-  return axios.get(`/api/users?page=${page}`)
+  return axios.get(`/api/users/${page}`)
 }
-const postCreateUser = (name, job) => {
-  return axios.post('/api/users', { name, job })
+const createUser = (email, firstName, lastName) => {
+  return axios.post('/api/users', { email, firstName, lastName })
 }
-export { fetchAllUser, postCreateUser }
+const editUser = (user) => {
+  return axios.patch('/api/users', user)
+}
+export { fetchAllUser, createUser, editUser }

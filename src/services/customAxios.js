@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-  baseURL: 'https://reqres.in'
+  // baseURL: ''
 })
 export default instance
 instance.interceptors.response.use(

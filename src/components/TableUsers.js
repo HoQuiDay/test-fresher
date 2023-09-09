@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 
 import Table from 'react-bootstrap/Table'
-import { fetchAllUser } from '../services/userService'
 import ReactPaginate from 'react-paginate'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchUsers } from '../Redux/userList/usersSlice'
+import { totalPagesSelector, userListSelector } from '../Redux/userList/usersSlice'
+import { Button } from 'react-bootstrap'
+import ModalEditUser from './ModalEditUser'
 
-const TableUsers = (props) => {
-  const [userList, setUserList] = useState([])
-  const [totalUsers, setTotalUser] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
+const TableUsers = () => {
+  const [isShowEditModal, setIsShowEditModal] = useState(false)
+  const [dataUserEdit, setDataUserEdit] = useState({})
+  const userList = useSelector(userListSelector)
+  const totalPages = useSelector(totalPagesSelector)
+  const dispatch = useDispatch()
   useEffect(() => {
-    getUsers(1)
-  }, [])
-  const getUsers = async (page) => {
-    let res = await fetchAllUser(page)
-    if (res && res.data) {
-      setUserList(res.data)
-      setTotalUser(res.total)
-      setTotalPages(res.total_pages)
-    }
-  }
+    dispatch(fetchUsers(1))
+  }, [dispatch])
   const handlePageClick = (event) => {
-    getUsers(+event.selected + 1)
+    dispatch(fetchUsers(+event.selected + 1))
   }
-
+  const handleCloseEdiModal = () => {
+    setIsShowEditModal(false)
+  }
+  const handleEditUser = (user) => {
+    setIsShowEditModal(true)
+    setDataUserEdit(user)
+  }
   return (
     <>
       <Table
@@ -36,6 +39,7 @@ const TableUsers = (props) => {
             <th>Email</th>
             <th>First Name</th>
             <th>Last Name</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -47,12 +51,26 @@ const TableUsers = (props) => {
                     <td>{user.email}</td>
                     <td>{user.first_name}</td>
                     <td>{user.last_name}</td>
+                    <td className="d-flex justify-content-center align-items-center">
+                      <Button
+                        className="mx-2"
+                        variant="warning"
+                        onClick={() => handleEditUser(user)}>
+                        Edit
+                      </Button>
+                      <Button variant="danger">Delete</Button>
+                    </td>
                   </tr>
                 )
               })
             : null}
         </tbody>
       </Table>
+      <ModalEditUser
+        isShowEditModal={isShowEditModal}
+        handleCloseEdiModal={handleCloseEdiModal}
+        dataUserEdit={dataUserEdit}
+      />
       <ReactPaginate
         nextLabel="next >"
         onPageChange={handlePageClick}
