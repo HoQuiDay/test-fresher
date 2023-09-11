@@ -3,14 +3,10 @@ export const setupServer = () => {
   createServer({
     models: {},
     routes() {
-      this.get('/api/users/:page', (schema, request) => {
-        let page = request.params.page
-        let start = (page - 1) * 6
-        let end = start + 6
-        let users = schema.db.users.slice(start, end)
+      this.get('/api/users', (schema, request) => {
+        let users = schema.db.users
         let total = schema.db.users.length
         return {
-          page: page,
           per_page: 6,
           total: total,
           total_pages: Math.ceil(total / 6),
@@ -35,6 +31,12 @@ export const setupServer = () => {
         if (data) {
           return data[0]
         } else return 'error....'
+      })
+
+      this.delete('/api/users/:id', (schema, request) => {
+        const id = request.params.id
+        schema.db.users.remove(id)
+        return 'success'
       })
     },
     seeds(server) {

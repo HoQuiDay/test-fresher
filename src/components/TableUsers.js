@@ -3,30 +3,43 @@ import React, { useEffect, useState } from 'react'
 import Table from 'react-bootstrap/Table'
 import ReactPaginate from 'react-paginate'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchUsers } from '../Redux/userList/usersSlice'
-import { totalPagesSelector, userListSelector } from '../Redux/userList/usersSlice'
+import { changePage, fetchUsers, sortUser } from '../Redux/userList/usersSlice'
+import { totalPagesSelector, userRemainingSelector } from '../Redux/selectors'
 import { Button } from 'react-bootstrap'
 import ModalEditUser from './ModalEditUser'
-
+import ModalConfirm from './ModalConfirm'
 const TableUsers = () => {
   const [isShowEditModal, setIsShowEditModal] = useState(false)
+  const [isShowConfirmModal, setIsShowConfirmModal] = useState(false)
   const [dataUserEdit, setDataUserEdit] = useState({})
-  const userList = useSelector(userListSelector)
+  const [dataUserDelete, setDataUserDelete] = useState({})
+  // const [sortBy, setSortBy] = useState('')
+  // const [fieldSort, setFieldSort] = useState('')
+  const userList = useSelector(userRemainingSelector)
   const totalPages = useSelector(totalPagesSelector)
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(fetchUsers(1))
+    dispatch(fetchUsers())
   }, [dispatch])
   const handlePageClick = (event) => {
-    dispatch(fetchUsers(+event.selected + 1))
+    dispatch(changePage(+event.selected + 1))
   }
-  const handleCloseEdiModal = () => {
+  const handleCloseModal = () => {
     setIsShowEditModal(false)
+    setIsShowConfirmModal(false)
   }
   const handleEditUser = (user) => {
     setIsShowEditModal(true)
     setDataUserEdit(user)
   }
+  const handleDeleteUser = (user) => {
+    setIsShowConfirmModal(true)
+    setDataUserDelete(user)
+  }
+  const handleSort = (sort, field) => {
+    dispatch(sortUser({ sort, field }))
+  }
+
   return (
     <>
       <Table
@@ -35,9 +48,39 @@ const TableUsers = () => {
         hover>
         <thead>
           <tr>
-            <th>ID</th>
+            <th>
+              <span className="d-flex justify-content-between align-items-center">
+                ID
+                <span>
+                  <i
+                    role="button"
+                    onClick={() => handleSort('asc', 'id')}
+                    className="fa-solid fa-arrow-up"></i>
+                  <i
+                    role="button"
+                    onClick={() => handleSort('desc', 'id')}
+                    className="fa-solid fa-arrow-up fa-rotate-180"></i>
+                </span>
+              </span>
+            </th>
             <th>Email</th>
-            <th>First Name</th>
+            <th>
+              <span className="d-flex justify-content-between align-items-center">
+                First Name
+                <span>
+                  <span>
+                    <i
+                      role="button"
+                      onClick={() => handleSort('asc', 'first_name')}
+                      className="fa-solid fa-arrow-up"></i>
+                    <i
+                      role="button"
+                      onClick={() => handleSort('desc', 'first_name')}
+                      className="fa-solid fa-arrow-up fa-rotate-180"></i>
+                  </span>
+                </span>
+              </span>
+            </th>
             <th>Last Name</th>
             <th>Action</th>
           </tr>
@@ -58,7 +101,11 @@ const TableUsers = () => {
                         onClick={() => handleEditUser(user)}>
                         Edit
                       </Button>
-                      <Button variant="danger">Delete</Button>
+                      <Button
+                        onClick={() => handleDeleteUser(user)}
+                        variant="danger">
+                        Delete
+                      </Button>
                     </td>
                   </tr>
                 )
@@ -68,8 +115,13 @@ const TableUsers = () => {
       </Table>
       <ModalEditUser
         isShowEditModal={isShowEditModal}
-        handleCloseEdiModal={handleCloseEdiModal}
+        handleCloseEditModal={handleCloseModal}
         dataUserEdit={dataUserEdit}
+      />
+      <ModalConfirm
+        dataUserDelete={dataUserDelete}
+        isShowConfirmModal={isShowConfirmModal}
+        handleCloseConfirmModal={handleCloseModal}
       />
       <ReactPaginate
         nextLabel="next >"

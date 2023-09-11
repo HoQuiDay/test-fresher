@@ -1,13 +1,28 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { fetchAllUser } from '../../services/userService'
+import _ from 'lodash'
 const usersSlice = createSlice({
   name: 'userList',
-  initialState: { status: 'idle', users: [], totalPage: 0, currentPage: 1 },
+  initialState: { status: 'idle', users: [], totalPage: 0, currentPage: 1, searchText: '' },
   reducers: {
     // IMMER
     addNewUser: (state, action) => {
       state.totalPage = action.payload.total_pages
       state.users.push(action.payload.data)
+    },
+    changePage: (state, action) => {
+      state.currentPage = action.payload
+    },
+    searchUser: (state, action) => {
+      state.searchText = action.payload.searchText
+    },
+    sortUser: (state, action) => {
+      const { sort, field } = action.payload
+      let cloneUser = state.users.map((user) => {
+        return { ...user, id: +user.id }
+      })
+      cloneUser = _.orderBy(cloneUser, [field], [sort])
+      state.users = cloneUser
     },
     updateUser: (state, action) => {
       const id = action.payload.id
@@ -16,6 +31,9 @@ const usersSlice = createSlice({
     },
     updateCurrentPage: (state, action) => {
       state.currentPage = action.payload
+    },
+    removeUser: (state, action) => {
+      state.users = state.users.filter((user) => user.id !== action.payload)
     }
   },
   extraReducers: (builder) => {
@@ -27,7 +45,6 @@ const usersSlice = createSlice({
         state.users = action.payload.users
         state.status = 'idle'
         state.totalPage = action.payload.total_pages
-        state.currentPage = action.payload.page
       })
     // .addCase(addNewUsers.fulfilled, (state, action) => {
     //   state.totalPage = action.payload.total_pages
@@ -41,8 +58,10 @@ const usersSlice = createSlice({
   }
 })
 
-export const fetchUsers = createAsyncThunk('user/fetchUser', async (page) => {
-  return await fetchAllUser(page)
+export const fetchUsers = createAsyncThunk('user/fetchUser', async () => {
+  const data = await fetchAllUser()
+
+  return data
 })
 
 // export const addNewUsers = createAsyncThunk('user/addNewUser', async (newUser) => {
@@ -53,7 +72,5 @@ export const fetchUsers = createAsyncThunk('user/fetchUser', async (page) => {
 //   const data = await editUser(User)
 //   return data
 // })
-export const { updateCurrentPage, updateUser, addNewUser } = usersSlice.actions
+export const { updateCurrentPage, updateUser, addNewUser, removeUser, sortUser, changePage, searchUser } = usersSlice.actions
 export default usersSlice.reducer
-export const userListSelector = (state) => state.userList.users
-export const totalPagesSelector = (state) => state.userList.totalPage

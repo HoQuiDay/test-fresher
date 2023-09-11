@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux'
 import { updateUser } from '../Redux/userList/usersSlice'
 import { editUser } from '../services/userService'
 const ModalEditUser = (props) => {
-  const { isShowEditModal, handleCloseEdiModal, dataUserEdit } = props
+  const { isShowEditModal, handleCloseEditModal, dataUserEdit } = props
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -15,7 +15,7 @@ const ModalEditUser = (props) => {
     const res = await editUser({ id: dataUserEdit.id, email, firstName, lastName })
     if (res) {
       dispatch(updateUser(res))
-      handleCloseEdiModal(false)
+      handleCloseEditModal(false)
       toast.success('A user edited success')
     } else {
       toast.error('Error....')
@@ -33,7 +33,7 @@ const ModalEditUser = (props) => {
       backdrop="static"
       keyboard={false}
       show={isShowEditModal}
-      onHide={handleCloseEdiModal}>
+      onHide={handleCloseEditModal}>
       <Modal.Header closeButton>
         <Modal.Title>Edit A User</Modal.Title>
       </Modal.Header>
@@ -70,7 +70,7 @@ const ModalEditUser = (props) => {
       <Modal.Footer>
         <Button
           variant="secondary"
-          onClick={handleCloseEdiModal}>
+          onClick={handleCloseEditModal}>
           Close
         </Button>
         <Button
